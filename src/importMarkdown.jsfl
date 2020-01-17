@@ -7,7 +7,7 @@ var scriptPath = scriptUri.substr(0, scriptUri.lastIndexOf("/")+1);
 var IMAGE_FOLDER = "";  //images/
 var IMAGE_LABEL   = ""; //-posterframe
 var FPS        = 20;
-var _Time      = 1000;
+//var _Time      = 1000;
 var FONT_SIZE  = 24;  
 var FONT_COLOR = '#CCCCCC';
 var FONT_FACE  = 'MS-Gothic';
@@ -38,6 +38,25 @@ function importStoryboarder(){
     fl.trace(storyboader.fps);
     //
     return storyboader;
+}
+
+function parseCutTime(str){
+    const timeStr = str.split('<br> total');
+    var seconds = 0;
+    if (timeStr.length > 0 ){
+        var a = timeStr[0].split(":");
+        if (a.length>1){
+            seconds =  (+a[0]) * 60 + (+a[1]);
+        }
+    }
+    var total = 0;
+    if (timeStr[1]){
+        var a = timeStr[1].split(":");
+        if (a.length>2){
+            total =  (+a[0]) * 60*60 + (+a[1]) * 60 + (+a[2]);
+        }
+    }
+    return {time:seconds, totalTime:total}
 }
 
 function importMarkdown(){
@@ -76,15 +95,10 @@ function importMarkdown(){
                     }
                     break;
                 case 3:
-                    value = Number(value);
-                    if (value == 0){
-                        if (ret.length==0){
-                            value = 0;
-                        }else{
-                            value = ret[ret.length-1].time + 1000;
-                        }
-                    }
-                    board.time = value;
+					//00:10.000 <br> total 00:00:10.000 
+					var t = parseCutTime(value);
+					board.time = t.totalTime-t.time;
+					board.duration = t.totalTime;
                     break;
                 case 4:
                     board.action = value;
@@ -107,10 +121,10 @@ function importMarkdown(){
 
 }
 
-function insertFrames(time, next){
+function insertFrames(time, duration){
     fl.trace("insertFrames");
-    var totalFrames = parseInt((next-time)/(1000/FPS));
-    var currentFrameIndex = parseInt(time/(1000/FPS));
+    var totalFrames = parseInt((duration/FPS));
+    var currentFrameIndex = parseInt(time/FPS);
     //TL.setSelectedFrames(currentFrameIndex, totalFrames);
     fl.trace(_INDENT + currentFrameIndex + ", " + totalFrames);
     if (currentFrameIndex == 0){
@@ -231,11 +245,7 @@ for (var i=0;i<boards.length;i++){
     var board = boards[i];
     // '../../data/storyboards/Scene-2-SCENE-001-2-04SYK/images/board-2-FDMFD-reference.png';
     var frameIndex = 0;
-    if (i < boards.length-1){
-        frameIndex = insertFrames(board.time, boards[i+1].time);
-    }else{
-        frameIndex = insertFrames(board.time, board.time + _Time*2);
-    }
+    frameIndex = insertFrames(board.time, board.duration);
     
     setShot(board.shot, frameIndex);
     setAction(board.action?board.action:"", frameIndex);
