@@ -6,13 +6,13 @@ var scriptUri  = fl.scriptURI;
 var scriptPath = scriptUri.substr(0, scriptUri.lastIndexOf("/")+1);
 var IMAGE_FOLDER = "";  //images/
 var IMAGE_LABEL   = ""; //-posterframe
-var FPS        = 20;
+var FPS        = 30;
 //var _Time      = 1000;
-var FONT_SIZE  = 24;  
+var FONT_SIZE  = 36;  
 var FONT_COLOR = '#CCCCCC';
 var FONT_FACE  = 'MS-Gothic';
-var TEXT_LEFT  = 0;
-var TEXT_TOP   = 0;
+var TEXT_LEFT  = _W/2;
+var TEXT_TOP   = _H -FONT_SIZE*2;
                              
 
 var Layers     = {};
@@ -26,18 +26,6 @@ function init(layerName) {
     var index = TL.addNewLayer();
     TL.setLayerProperty('name', layerName);
     fl.trace(index + _INDENT+ layerName);
-}
-
-function importStoryboarder(){
-    var uri = fl.browseForFileURL('open', 'Import File');
-    fl.trace(uri);
-    folderPath = uri.substr(0, uri.lastIndexOf("/")+1);
-    var data = FLfile.read(uri);
-    var storyboader = JSON.parse(data);
-    fl.trace(storyboader.version);
-    fl.trace(storyboader.fps);
-    //
-    return storyboader;
 }
 
 function parseCutTime(str){
@@ -101,32 +89,31 @@ function importMarkdown(){
 					board.duration = t.totalTime;
                     break;
                 case 4:
-                    board.action = value;
+                    board.character = value; // should be board.character
                     break;
                 case 5:
                     board.dialogue = value;
                     break;
                 case 6:
-                    board.comment = value;
+                    board.comment = value; 
                     break;
             }
         }
         if (cells.length == 8){
             fl.trace(cells[0]);
-            fl.trace(_INDENT + board.shot + ", " + board.time);
+            fl.trace(_INDENT + board.shot + ", " + board.time + ", " + board.duration);
             ret.push(board);
         }
     }
     return ret;
-
 }
 
 function insertFrames(time, duration){
     fl.trace("insertFrames");
-    var totalFrames = parseInt((duration/FPS));
-    var currentFrameIndex = parseInt(time/FPS);
+    var totalFrames = parseInt(duration*FPS);
+    var currentFrameIndex = parseInt(time*FPS);
     //TL.setSelectedFrames(currentFrameIndex, totalFrames);
-    fl.trace(_INDENT + currentFrameIndex + ", " + totalFrames);
+    fl.trace(_INDENT + "currentFrameIndex, totalFrames:" + currentFrameIndex + ", " + totalFrames);
     if (currentFrameIndex == 0){
         TL.insertFrames(totalFrames, true, 1);
     }else{
@@ -135,9 +122,11 @@ function insertFrames(time, duration){
         TL.insertBlankKeyframe(currentFrameIndex);
         TL.setSelectedLayers(Layers["dialogue"].index);
         TL.insertBlankKeyframe(currentFrameIndex);
-        TL.setSelectedLayers(Layers["action"].index);
+        TL.setSelectedLayers(Layers["character"].index);
         TL.insertBlankKeyframe(currentFrameIndex);
         TL.setSelectedLayers(Layers["shot"].index);
+        TL.insertBlankKeyframe(currentFrameIndex);
+        TL.setSelectedLayers(Layers["comment"].index);
         TL.insertBlankKeyframe(currentFrameIndex);
         fl.trace(_INDENT + totalFrames);
     }
@@ -145,11 +134,18 @@ function insertFrames(time, duration){
     return currentFrameIndex;
 }
 
-function setAction(action, frameIndex){
-    TL.setSelectedLayers(Layers["action"].index);
+function setComment(comment, frameIndex){
+    TL.setSelectedLayers(Layers["comment"].index);
     TL.setSelectedFrames(frameIndex, frameIndex + 1, true);
     TL.setFrameProperty('labelType', 'name');
-    TL.setFrameProperty('name', action);
+    TL.setFrameProperty('name', comment);
+}
+
+function setCharacter(character, frameIndex){
+    TL.setSelectedLayers(Layers["character"].index);
+    TL.setSelectedFrames(frameIndex, frameIndex + 1, true);
+    TL.setFrameProperty('labelType', 'name');
+    TL.setFrameProperty('name', character);
 }
 
 function setShot(shotName, frameIndex){
@@ -228,9 +224,11 @@ function insertToStage(url, time, x, y, frameIndex ){
 }
 
 init("shot");
-init("action");
 init("image");
+init("character");
 init("dialogue");
+init("comment");
+
 
 for (var i=0;i<TL.layers.length;i++){
     var layer = TL.layers[i];
@@ -248,7 +246,8 @@ for (var i=0;i<boards.length;i++){
     frameIndex = insertFrames(board.time, board.duration);
     
     setShot(board.shot, frameIndex);
-    setAction(board.action?board.action:"", frameIndex);
+    setCharacter(board.character?board.character:"", frameIndex);
+    setComment(board.comment?board.comment:"", frameIndex);
 
     if (board.url && board.url.length > 0){
         loadToLibrary(board.url);
@@ -259,12 +258,13 @@ for (var i=0;i<boards.length;i++){
         createText(board.dialogue, TEXT_LEFT, TEXT_TOP, frameIndex )
     }
 
-    fl.trace(board.number);
+    fl.trace(board.shot);
     fl.trace(_INDENT+board.url);
-    fl.trace(_INDENT+board.shot);
     fl.trace(_INDENT+board.time);
     fl.trace(_INDENT+board.duration);
     fl.trace(_INDENT+board.dialogue);
-    fl.trace(_INDENT+board.action);
+    fl.trace(_INDENT+board.character);
+    fl.trace(_INDENT+board.comment);
+
 }
 
