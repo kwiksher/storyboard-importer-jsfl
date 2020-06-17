@@ -2,13 +2,15 @@ var _INDENT    = "    ";
 var TL         = fl.getDocumentDOM().getTimeline()
 var _W         = fl.getDocumentDOM().width;
 var _H         = fl.getDocumentDOM().height;
+var _Margin    = 100;
 var FPS        = fl.getDocumentDOM().frameRate;
 //var _Time      = 1000;
 var FONT_SIZE  = 80;  
 var FONT_COLOR = '#CCCCCC';
 var FONT_FACE  = 'MS-Gothic';
-var TEXT_LEFT  = _W/2;
+var TEXT_CENTER  = _W/2;
 var TEXT_TOP   = _H -FONT_SIZE*2;
+var useDynamicText = false;
                              
 var Layers     = {};
 var Images     = {}
@@ -75,28 +77,35 @@ function createText(text, centerX, centerY, frameIndex, captionIndex){
 
     aText = text.replace(new RegExp("\n", "g"), "\\n");
     var instanceName = ("caption" + captionIndex).replace(/\s/g, '');
+    var symbolName   = ("caption" + captionIndex).replace(/\s/g, '');
 
-    if (fl.getDocumentDOM().library.selectItem("caption")){
+    if (fl.getDocumentDOM().library.selectItem(symbolName)){
         fl.getDocumentDOM().library.addItemToDocument({x:centerX, y:centerY});
         
     }else{
         //Create Text        
-        fl.getDocumentDOM().addNewText( {left:0, top:centerY - FONT_SIZE, right: centerX*2, bottom:centerY + FONT_SIZE});
-        fl.getDocumentDOM().setElementProperty('textType', 'dynamic');
-        fl.getDocumentDOM().setElementProperty('name', 'srcText');
-        fl.getDocumentDOM().setTextString(text);
+        fl.getDocumentDOM().addNewText( {left:_Margin, top:centerY -5, right: _W-_Margin, bottom:centerY + FONT_SIZE*2+5});
+        if (useDynamicText){
+            fl.getDocumentDOM().setElementProperty('textType', 'dynamic');
+            fl.getDocumentDOM().setElementProperty('name', 'srcText');
+            fl.getDocumentDOM().setElementProperty('name', 'source');
+        }else{
+            fl.getDocumentDOM().setElementProperty('textType', 'static');
+        }
         fl.getDocumentDOM().setFillColor(FONT_COLOR);        
         fl.getDocumentDOM().setElementProperty('autoExpand', false);
-        fl.getDocumentDOM().setElementProperty('name', 'source');
         fl.getDocumentDOM().setElementTextAttr('size', FONT_SIZE);
         fl.getDocumentDOM().setElementTextAttr('face', FONT_FACE);
         fl.getDocumentDOM().setElementTextAttr('alignment', "center");
-        var newMc = fl.getDocumentDOM().convertToSymbol("movie clip", "caption", "top left");
+        fl.getDocumentDOM().setTextString(text);
+        var newMc = fl.getDocumentDOM().convertToSymbol("movie clip", symbolName, "top left");
+
     }
    
    fl.getDocumentDOM().selection[0].name = instanceName;
-   fl.getDocumentDOM().getTimeline().layers[Layers["dialogue"].index].frames[frameIndex].actionScript = instanceName + '.source.text = "'+ aText+'";'
+   //fl.getDocumentDOM().getTimeline().layers[Layers["dialogue"].index].frames[frameIndex].actionScript = instanceName + '.source.text = "'+ aText+'";'
  
+
 }
 
 function loadToLibrary(url){

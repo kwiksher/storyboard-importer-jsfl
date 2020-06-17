@@ -145,7 +145,7 @@ for (var i=0;i<boards.length;i++){
 
     if (isEmptyStr(board.dialogue) == false){
         //createText(board.dialogue, _W/2, _H/2, frameIndex, board.shot )
-        createText(board.dialogue, TEXT_LEFT, TEXT_TOP, frameIndex, board.shot )
+        createText(board.dialogue, TEXT_CENTER, TEXT_TOP, frameIndex, board.shot )
     }
 
     fl.trace(board.shot);

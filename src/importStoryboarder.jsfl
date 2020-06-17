@@ -87,12 +87,12 @@ for (var i=0;i<storyboader.boards.length;i++){
 
     if (isEmptyStr(board.dialogue) == false){
         //createText(board.dialogue, _W/2, _H/2, frameIndex, board.shot )
-        createText(board.dialogue, TEXT_LEFT, TEXT_TOP, frameIndex, board.shot )
+        createText(board.dialogue, TEXT_CENTER, TEXT_TOP, frameIndex, board.shot )
 
     }
     if (board.url && board.url.length > 0){
         loadToLibrary(board.url);
-        insertToStage(board.url, board.time, TEXT_LEFT, TEXT_TOP, frameIndex);
+        insertToStage(board.url, board.time, TEXT_CENTER, TEXT_TOP, frameIndex);
     }
 
     fl.trace(board.number);
