@@ -18,6 +18,10 @@ var folderPath = null;
 
 fl.runScript( scriptPath + '../libs/json2.js' );
 
+function setFolderPath(path){
+    folderPath = path;
+}
+
 function isEmptyStr(str){
 	var trimmed = str.replace(/^\s+/,'').replace(/\s+$/,'');
 	return str ==null|| trimmed.length==0;
@@ -86,8 +90,8 @@ function createText(text, centerX, centerY, frameIndex, captionIndex){
         //Create Text        
         fl.getDocumentDOM().addNewText( {left:_Margin, top:centerY -5, right: _W-_Margin, bottom:centerY + FONT_SIZE*2+5});
         if (useDynamicText){
-            fl.getDocumentDOM().setElementProperty('textType', 'dynamic');
-            fl.getDocumentDOM().setElementProperty('name', 'srcText');
+        fl.getDocumentDOM().setElementProperty('textType', 'dynamic');
+        fl.getDocumentDOM().setElementProperty('name', 'srcText');
             fl.getDocumentDOM().setElementProperty('name', 'source');
         }else{
             fl.getDocumentDOM().setElementProperty('textType', 'static');
@@ -99,13 +103,11 @@ function createText(text, centerX, centerY, frameIndex, captionIndex){
         fl.getDocumentDOM().setElementTextAttr('alignment', "center");
         fl.getDocumentDOM().setTextString(text);
         var newMc = fl.getDocumentDOM().convertToSymbol("movie clip", symbolName, "top left");
-
     }
    
    fl.getDocumentDOM().selection[0].name = instanceName;
    //fl.getDocumentDOM().getTimeline().layers[Layers["dialogue"].index].frames[frameIndex].actionScript = instanceName + '.source.text = "'+ aText+'";'
  
-
 }
 
 function loadToLibrary(url){
@@ -144,4 +146,22 @@ function insertToStage(url, time, x, y, frameIndex ){
     element.x = 0;
     element.y = 0;
     
+}
+
+function getLibraryName(name, num){
+    var _name = name;
+    var suffixNum = num;
+    var items = fl.getDocumentDOM().library.items;
+    for(var i=0;i<items.length;i++){
+        var tmpItem = items[i];
+        if( tmpItem.itemType == "folder" ) 
+        {       
+            if (tmpItem.name == _name){
+                _name = _name + suffixNum;
+                suffixNum = suffixNum + 1;
+                return getLibraryName(_name, suffixNum);
+            }
+        }
+    }
+    return _name;
 }

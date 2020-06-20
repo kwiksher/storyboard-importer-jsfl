@@ -5,13 +5,24 @@ fl.runScript( scriptPath + '/util.jsfl' );
 var IMAGE_FOLDER = "images/";  
 var IMAGE_LABEL   = "-posterframe"; 
 
+var libraryName = "";
+
 function importStoryboarder(){
     var uri = fl.browseForFileURL('open', 'Import File');
     fl.trace(uri);
     if (uri == null){
         return [];
     }
-    folderPath = uri.substr(0, uri.lastIndexOf("/")+1);
+    var index =  uri.lastIndexOf("/")+1;
+    var folderPath = uri.substr(0, index);
+    setFolderPath(folderPath);
+    var fileName =  uri.substr(index, uri.lastIndexOf(".")-index);
+    fl.trace(fileName);
+    //create a library
+    libraryName = getLibraryName(fileName, 0);
+    fl.getDocumentDOM().library.newFolder(libraryName);
+    //
+
     var data = FLfile.read(uri);
     var storyboader = JSON.parse(data);
     fl.trace(storyboader.version);
@@ -88,11 +99,13 @@ for (var i=0;i<storyboader.boards.length;i++){
     if (isEmptyStr(board.dialogue) == false){
         //createText(board.dialogue, _W/2, _H/2, frameIndex, board.shot )
         createText(board.dialogue, TEXT_CENTER, TEXT_TOP, frameIndex, board.shot )
-
+        fl.getDocumentDOM().library.moveToFolder(libraryName);
     }
     if (board.url && board.url.length > 0){
         loadToLibrary(board.url);
+        fl.getDocumentDOM().library.moveToFolder(libraryName);
         insertToStage(board.url, board.time, TEXT_CENTER, TEXT_TOP, frameIndex);
+        fl.getDocumentDOM().library.moveToFolder(libraryName);
     }
 
     fl.trace(board.number);
