@@ -89,6 +89,7 @@ function createText(text, centerX, centerY, frameIndex, captionIndex){
     }else{
         //Create Text        
         fl.getDocumentDOM().addNewText( {left:_Margin, top:centerY -5, right: _W-_Margin, bottom:centerY + FONT_SIZE*2+5});
+        fl.getDocumentDOM().setTextRectangle({left:_Margin, top:centerY -5, right: _W-_Margin, bottom:centerY + FONT_SIZE*2+5});
         if (useDynamicText){
         fl.getDocumentDOM().setElementProperty('textType', 'dynamic');
         fl.getDocumentDOM().setElementProperty('name', 'srcText');
