@@ -36,6 +36,7 @@ function init(layerName) {
     var index = TL.addNewLayer();
     TL.setLayerProperty('name', layerName);
     fl.trace(index + _INDENT+ layerName);
+    return index;
 }
 
 function setComment(comment, frameIndex){
@@ -90,6 +91,7 @@ function createText(text, centerX, centerY, frameIndex, captionIndex){
         //Create Text        
         fl.getDocumentDOM().addNewText( {left:_Margin, top:centerY -5, right: _W-_Margin, bottom:centerY + FONT_SIZE*2+5});
         fl.getDocumentDOM().setTextRectangle({left:_Margin, top:centerY -5, right: _W-_Margin, bottom:centerY + FONT_SIZE*2+5});
+
         if (useDynamicText){
         fl.getDocumentDOM().setElementProperty('textType', 'dynamic');
         fl.getDocumentDOM().setElementProperty('name', 'srcText');
@@ -103,7 +105,8 @@ function createText(text, centerX, centerY, frameIndex, captionIndex){
         fl.getDocumentDOM().setElementTextAttr('face', FONT_FACE);
         fl.getDocumentDOM().setElementTextAttr('alignment', "center");
         fl.getDocumentDOM().setTextString(text);
-        var newMc = fl.getDocumentDOM().convertToSymbol("movie clip", symbolName, "top left");
+        var newMc = fl.getDocumentDOM().convertToSymbol("graphic", symbolName, "top left");
+
     }
    
    fl.getDocumentDOM().selection[0].name = instanceName;
@@ -166,3 +169,33 @@ function getLibraryName(name, num){
     }
     return _name;
 }
+
+function createGraphic(libraryName, bAction){
+
+    TL.setSelectedLayers(Layers["comment"].index, true);
+    TL.setSelectedLayers(Layers["image"].index, false);
+    TL.setSelectedLayers(Layers["character"].index, false);
+    TL.setSelectedLayers(Layers["dialogue"].index, false);
+    TL.setSelectedLayers(Layers["shot"].index, false);
+    if (bAction){
+        TL.setSelectedLayers(Layers["action"].index, false);
+    }
+    fl.getDocumentDOM().getTimeline().cutLayers();
+
+    fl.getDocumentDOM().library.addNewItem('graphic', libraryName + "_gr");
+    if (fl.getDocumentDOM().library.getItemProperty('linkageImportForRS') == true) {
+        fl.getDocumentDOM().library.setItemProperty('linkageImportForRS', false);
+    }
+    else {
+        fl.getDocumentDOM().library.setItemProperty('linkageExportForAS', false);
+        fl.getDocumentDOM().library.setItemProperty('linkageExportForRS', false);
+    }
+    fl.getDocumentDOM().library.editItem();
+    fl.getDocumentDOM().getTimeline().pasteLayers();
+    fl.getDocumentDOM().exitEditMode();
+
+    init(libraryName);
+    fl.getDocumentDOM().library.addItemToDocument({x:_W/2, y:_H/2});
+}
+
+

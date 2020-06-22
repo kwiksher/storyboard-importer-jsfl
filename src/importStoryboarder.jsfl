@@ -120,3 +120,4 @@ for (var i=0;i<storyboader.boards.length;i++){
 
 }
 
+createGraphic(libraryName, true);
